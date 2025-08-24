@@ -1,0 +1,5 @@
+SKU	Số lượng	Ghi chú
+KB-K2-001	10	Test nhập kho từ Excel
+MS-G102-WH	20	Test nhập kho hàng loạt
+HP-SS-7	5	Test validation
+LED-RGB-01	15	Test dán bảng 

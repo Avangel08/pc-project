@@ -1,0 +1,120 @@
+[
+  {
+    "id": 1751624482767,
+    "name": "Lý",
+    "email": "thanhndpt00045@gmail.com",
+    "password": "$2b$12$ZDZW3W5a5pgDiIfL1rFWDO4aVpitjMOZydTT8nHsgc/kRhoA87Cz6",
+    "role": "customer",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2025-07-18T02:07:58.209Z",
+    "phone": "0833782395",
+    "address": "vrre, cde, Huyện Ngân Sơn, Tỉnh Bắc Kạn",
+    "avatar": "",
+    "isActive": true,
+    "favorites": [
+      "mouse-001",
+      "keyboard-001"
+    ],
+    "orders": [
+      "ORDER_001",
+      "ORDER_002"
+    ],
+    "isDefaultAddress": true
+  },
+  {
+    "id": 1751944409566,
+    "name": "nguyen thanh",
+    "email": "tn845470@gmail.com",
+    "password": "$2b$12$H0BI/PRtJDX9JXbtFqTMmOwG5ZMGl9c8yB/KypEeUGzlDAmgqRdsy",
+    "role": "customer",
+    "createdAt": "2025-07-08T03:13:29.566Z",
+    "updatedAt": "2025-07-08T03:13:29.566Z",
+    "phone": "0832367141",
+    "address": "132-fdr",
+    "avatar": "",
+    "isActive": true,
+    "favorites": [
+      "headset-001"
+    ],
+    "orders": [
+      "ORDER_003"
+    ]
+  },
+  {
+    "id": 1751945996914,
+    "name": "thahfdvfh",
+    "email": "thanhndpt0004@gmail.com",
+    "password": "$2b$12$hb.ZQvP7mGqIlavFcysD8.RREWlL2clKAfbFkg.vjT6Ha90ado8se",
+    "role": "customer",
+    "createdAt": "2025-07-08T03:39:56.914Z",
+    "updatedAt": "2025-07-08T03:39:56.917Z",
+    "phone": "0832367141",
+    "address": "132-fdr-gbhyt",
+    "avatar": "",
+    "isActive": true,
+    "favorites": [],
+    "orders": []
+  },
+  {
+    "id": 1751946110790,
+    "name": "nguyen thanh01",
+    "email": "thanhndpt00047@gmail.com",
+    "password": "$2b$12$vSAnelP62OgXsccykrZM1OeD93dzog35S857bArBK5sm05bBSZaha",
+    "role": "customer",
+    "createdAt": "2025-07-08T03:41:50.790Z",
+    "updatedAt": "2025-07-08T03:41:50.790Z",
+    "phone": "0832367141",
+    "address": "132-fdr-gbhyt-fgh",
+    "avatar": "",
+    "isActive": true,
+    "favorites": [],
+    "orders": []
+  },
+  {
+    "id": 1751947181741,
+    "name": "nguyễnthanh",
+    "email": "thanhndpt00044@gmail.com",
+    "password": "$2b$12$aiZfqq9iKPF71v.kDQUtBeyvZaSawsQYjeMsg989YANzjk897FbHi",
+    "role": "customer",
+    "createdAt": "2025-07-08T03:59:41.741Z",
+    "updatedAt": "2025-07-10T16:59:56.497Z",
+    "phone": "083236714",
+    "address": "15, Đan Hội, Thành phố Hạ Long, Tỉnh Quảng Ninh",
+    "avatar": "",
+    "isActive": true,
+    "favorites": [
+      "PROD_1750386328730_8a479edf",
+      "PROD_1750924931116_1351qbwt6"
+    ],
+    "orders": [],
+    "isDefaultAddress": true
+  },
+  {
+    "id": 1752229869034,
+    "name": "Đức Thành",
+    "email": "nguyenthanhbg2003@gmail.com",
+    "password": "$2b$12$FMuCWJXgIxMsx1nRlg6oB.vi.LyWASw7KSqJ5OgvHtJu6eF8UopkW",
+    "role": "customer",
+    "createdAt": "2025-07-11T10:31:09.034Z",
+    "updatedAt": "2025-07-18T02:11:38.190Z",
+    "phone": "0833782395",
+    "address": "tân thinh, Đan Hội, Huyện Lục Nam, Tỉnh Bắc Giang",
+    "avatar": "",
+    "isActive": true,
+    "isDefaultAddress": true
+  },
+  {
+    "id": 1752544333528,
+    "name": "linh",
+    "email": "linhdvpt00022@gmail.com",
+    "password": "$2b$12$7SI74vmq/UPBkLiP9SQCzu5ran/1EMXypcvhlBlLtT/AmTuDb7Aeu",
+    "role": "customer",
+    "createdAt": "2025-07-15T01:52:13.528Z",
+    "updatedAt": "2025-07-18T02:15:56.611Z",
+    "phone": "0832367141",
+    "address": "yt-fgh-re, vdv, Huyện Hà Quảng, Tỉnh Cao Bằng",
+    "avatar": "",
+    "isActive": true,
+    "isDefaultAddress": true
+  }
+]

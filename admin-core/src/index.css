@@ -1,0 +1,115 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Orbitron:wght@400;700;900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 5% 7%;
+    --foreground: 0 0% 95%;
+
+    --card: 210 5% 11%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 210 5% 9%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 180 100% 50%;
+    --primary-foreground: 210 5% 7%;
+
+    --secondary: 210 5% 15%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 210 5% 15%;
+    --muted-foreground: 0 0% 70%;
+
+    --accent: 300 100% 55%;
+    --accent-foreground: 0 0% 95%;
+
+    --destructive: 0 100% 55%;
+    --destructive-foreground: 0 0% 95%;
+
+    --border: 210 5% 20%;
+    --input: 210 5% 15%;
+    --ring: 180 100% 50%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 210 5% 5%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 180 100% 50%;
+    --sidebar-primary-foreground: 210 5% 7%;
+    --sidebar-accent: 210 5% 12%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 210 5% 15%;
+    --sidebar-ring: 180 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-roboto;
+  }
+
+  .gaming-gradient {
+    background: linear-gradient(135deg, #121212 0%, #1A1A2E 50%, #0a0a0a 100%);
+  }
+
+  .neon-border {
+    border: 1px solid transparent;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(157, 0, 255, 0.2)) border-box;
+    border-radius: 8px;
+  }
+
+  .glow-effect {
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    transition: box-shadow 0.3s ease;
+  }
+
+  .glow-effect:hover {
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), 0 0 30px rgba(157, 0, 255, 0.3);
+  }
+
+  .card-hover {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 255, 255, 0.5);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 255, 255, 0.2);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #00FFFF, #9D00FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* Force neon cyan scrollbar for absolutely all elements */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #111111 #10151a;
+}
+*::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+  background: #222;
+}
+*::-webkit-scrollbar-thumb {
+  background: #111111;
+  border-radius: 8px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: #222;
+}
+*::-webkit-scrollbar-track {
+  background: #10151a;
+}
