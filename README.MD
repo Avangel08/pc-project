@@ -1,4 +1,7 @@
 # 🚀 PC Project - website Thương Mại Điện Tử
+Admin Core (Vite + React)
+Customer Site (Next.js)
+
 
 Cần 3 terminal riêng biệt:
 Terminal 1 - API Server (Backend)
