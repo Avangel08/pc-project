@@ -394,9 +394,9 @@ export const ContentManagement = () => {
                         <TableCell>
                           <div className="flex items-center space-x-3">
                                 <div className="w-16 h-12 bg-gaming-darker rounded-lg flex items-center justify-center overflow-hidden">
-                                  {banner.imageUrl ? (
+                                  {banner.images && banner.images[0]?.url ? (
                                     <img 
-                                      src={banner.imageUrl} 
+                                      src={banner.images[0].url} 
                                       alt={banner.title}
                                       className="w-full h-full object-cover"
                                     />

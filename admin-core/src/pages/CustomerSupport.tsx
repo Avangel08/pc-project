@@ -607,6 +607,7 @@ export const CustomerSupport = () => {
           onStatusChange={handleStatusChange}
           onAgentChange={handleAgentChange}
           onReply={handleReply}
+          onQualityRating={() => {}}
         />
       )}
 

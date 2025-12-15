@@ -99,5 +99,13 @@ Nếu gặp vấn đề:
 
 
 ---
+# Kiểm tra trạng thái
+git status
 
+# Add và commit
+git add .
+git commit -m "Mô tả thay đổi"
+
+# Push
+git push origin master
 

@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Calendar, Link, Image as ImageIcon } from 'lucide-react';
+import { X, Calendar, Link, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
 import { Banner, CreateBannerRequest, UpdateBannerRequest } from '@/models/Banner';
+import { uploadImage } from '@/lib/api';
+import { toast } from '@/hooks/use-toast';
 
 interface BannerModalProps {
   isOpen: boolean;
@@ -43,6 +45,7 @@ export const BannerModal: React.FC<BannerModalProps> = ({
   const [imageInputs, setImageInputs] = useState<Array<{url: string, alt: string, title: string}>>([
     { url: '', alt: '', title: '' }
   ]);
+  const [uploadingIndex, setUploadingIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (banner) {
@@ -107,6 +110,26 @@ export const BannerModal: React.FC<BannerModalProps> = ({
     }
   };
 
+  const handleImageUpload = async (index: number, file: File) => {
+    setUploadingIndex(index);
+    try {
+      const url = await uploadImage(file);
+      handleImageInputChange(index, 'url', url);
+      toast({
+        title: 'Thành công',
+        description: 'Đã upload ảnh thành công'
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Lỗi upload',
+        description: error.message || 'Không thể upload ảnh',
+        variant: 'destructive'
+      });
+    } finally {
+      setUploadingIndex(null);
+    }
+  };
+
 
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -122,7 +145,11 @@ export const BannerModal: React.FC<BannerModalProps> = ({
       }));
 
     if (validImages.length === 0) {
-      alert('Vui lòng nhập ít nhất một URL ảnh');
+      toast({
+        title: 'Lỗi',
+        description: 'Vui lòng upload ít nhất một ảnh',
+        variant: 'destructive'
+      });
       return;
     }
 
@@ -318,18 +345,41 @@ export const BannerModal: React.FC<BannerModalProps> = ({
                       </div>
                       
                       <div className="space-y-2">
-                        <div className="relative">
-                          <ImageIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                          <Input
-                            value={image.url}
-                            onChange={(e) => handleImageInputChange(index, 'url', e.target.value)}
-                            className="pl-10 bg-gaming-darker border-gaming-cyan/30 text-white"
-                            placeholder="https://example.com/image.jpg"
-                            required
+                        {/* Upload Button */}
+                        <label className="block">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                handleImageUpload(index, file);
+                              }
+                              e.target.value = '';
+                            }}
+                            disabled={uploadingIndex !== null || mode === 'view'}
+                            className="hidden"
+                            id={`banner-image-upload-${index}`}
                           />
-                        </div>
-                        
-
+                          <Button
+                            type="button"
+                            onClick={() => document.getElementById(`banner-image-upload-${index}`)?.click()}
+                            disabled={uploadingIndex !== null || mode === 'view'}
+                            className="w-full bg-gaming-cyan text-black hover:bg-gaming-cyan/80"
+                          >
+                            {uploadingIndex === index ? (
+                              <>
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                Đang upload...
+                              </>
+                            ) : (
+                              <>
+                                <Upload className="h-4 w-4 mr-2" />
+                                {image.url ? 'Thay đổi ảnh' : 'Upload ảnh'}
+                              </>
+                            )}
+                          </Button>
+                        </label>
                         
                         {/* Image Preview */}
                         {image.url && (
@@ -340,7 +390,8 @@ export const BannerModal: React.FC<BannerModalProps> = ({
                               className="w-full h-32 object-cover"
                               onError={(e) => {
                                 e.currentTarget.style.display = 'none';
-                                e.currentTarget.nextElementSibling!.style.display = 'flex';
+                                const errorDiv = e.currentTarget.nextElementSibling as HTMLElement;
+                                if (errorDiv) errorDiv.style.display = 'flex';
                               }}
                             />
                             <div className="hidden w-full h-32 bg-gaming-darker flex items-center justify-center text-gray-400">

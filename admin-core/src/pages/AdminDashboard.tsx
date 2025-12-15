@@ -94,10 +94,10 @@ export const AdminDashboard = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
           <div>
-            <h1 className="text-4xl font-bold mb-1">
+            <h1 className="text-3xl font-bold text-gaming-cyan mb-2">
               Dashboard Tổng Quan
             </h1>
-            <p className="text-gray-400 mt-1 text-base md:text-lg">
+            <p className="text-gray-400 mt-1">
               Thống kê và báo cáo tổng quan hệ thống
             </p>
           </div>
@@ -175,7 +175,7 @@ export const AdminDashboard = () => {
                             color: 'white',
                             fontSize: 16
                           }}
-                          formatter={(value, name) => [formatCurrency(value), name === 'revenue' ? 'Doanh thu' : name]}
+                          formatter={(value, name) => [formatCurrency(Number(value) || 0), name === 'revenue' ? 'Doanh thu' : name]}
                         />
                         <Line 
                           type="monotone" 

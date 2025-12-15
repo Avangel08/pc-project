@@ -105,7 +105,13 @@ export const ReportsPage: React.FC = () => {
                 mode="range"
                 defaultMonth={dateRange.from}
                 selected={dateRange}
-                onSelect={setDateRange}
+                onSelect={(range) => {
+                  if (range?.from && range?.to) {
+                    setDateRange({ from: range.from, to: range.to });
+                  } else if (range?.from) {
+                    setDateRange({ from: range.from, to: range.from });
+                  }
+                }}
                 numberOfMonths={2}
                 className="bg-gaming-darker text-white"
               />

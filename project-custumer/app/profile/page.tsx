@@ -190,10 +190,16 @@ export default function ProfilePage() {
   };
 
   const fetchOrderHistory = async () => {
+    if (!user || !user.id) {
+      console.log('User not available');
+      setLoadingOrders(false);
+      return;
+    }
+    const userId = user.id;
     setLoadingOrders(true);
     try {
-      console.log('Fetching orders for user:', user.id);
-      const response = await fetch(`${ADMIN_CORE_API}/orders/customer/${user.id}`);
+      console.log('Fetching orders for user:', userId);
+      const response = await fetch(`${ADMIN_CORE_API}/orders/customer/${userId}`);
       console.log('Response status:', response.status);
       
       if (response.ok) {

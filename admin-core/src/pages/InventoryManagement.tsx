@@ -288,7 +288,23 @@ export default function InventoryManagement() {
     const delta = editStock - item.stock;
     if (delta === 0) { setEditIndex(null); setEditStock(0); return; }
     if (delta > 0) {
-      await handleImport({ productId: item.productCode, stock: delta, note: 'Cập nhật thủ công' });
+      setImportData({ productId: item.productCode, productName: item.name, stock: delta, note: 'Cập nhật thủ công' });
+      // Gọi API trực tiếp thay vì handleImport
+      const response = await fetch('/api/stock/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          productId: item.productCode, 
+          stock: delta, 
+          note: 'Cập nhật thủ công',
+          user: 'Admin'
+        })
+      });
+      if (response.ok) {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        setInventory(data);
+      }
     } else {
       await handleExport(item.productCode, -delta); // truyền số dương
     }
@@ -326,7 +342,7 @@ export default function InventoryManagement() {
     worksheet.getCell('A1').value = 'ARENA SHOP - BÁO CÁO TỒN KHO';
     worksheet.getCell('A1').style = {
       font: { bold: true, size: 18, color: { argb: colorHeader } },
-      alignment: { vertical: 'middle', horizontal: 'center' },
+      alignment: { vertical: 'middle' as const, horizontal: 'center' as const },
       fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: colorWhite } },
     };
     worksheet.getRow(1).height = 30;
@@ -339,7 +355,7 @@ export default function InventoryManagement() {
     worksheet.getCell('A2').value = `Ngày xuất báo cáo: ${dateStr}`;
     worksheet.getCell('A2').style = {
       font: { italic: true, size: 12, color: { argb: colorGray } },
-      alignment: { vertical: 'middle', horizontal: 'right' },
+      alignment: { vertical: 'middle' as const, horizontal: 'right' as const },
       fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: colorSilver } },
     };
     worksheet.getRow(2).height = 20;
@@ -356,31 +372,31 @@ export default function InventoryManagement() {
     // Style cho header tổng hợp
     const summaryHeaderStyle = {
       font: { bold: true, size: 13, color: { argb: colorText } },
-      alignment: { vertical: 'middle', horizontal: 'left', indent: 1 },
-      fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: colorSilver } },
+      alignment: { vertical: 'middle' as const, horizontal: 'left' as const, indent: 1 },
+      fill: { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: colorSilver } },
       border: {
-        top: { style: 'thin', color: { argb: colorBorder } },
-        left: { style: 'thin', color: { argb: colorBorder } },
-        bottom: { style: 'thin', color: { argb: colorBorder } },
-        right: { style: 'thin', color: { argb: colorBorder } },
+        top: { style: 'thin' as const, color: { argb: colorBorder } },
+        left: { style: 'thin' as const, color: { argb: colorBorder } },
+        bottom: { style: 'thin' as const, color: { argb: colorBorder } },
+        right: { style: 'thin' as const, color: { argb: colorBorder } },
       },
-    };
+    } as any;
     // Style cho giá trị tổng hợp
     const summaryValueStyle = {
       font: { bold: true, size: 13, color: { argb: colorHeader } },
-      alignment: { vertical: 'middle', horizontal: 'center' },
-      fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: colorSilver } },
+      alignment: { vertical: 'middle' as const, horizontal: 'center' as const },
+      fill: { type: 'pattern' as const, pattern: 'solid' as const, fgColor: { argb: colorSilver } },
       border: {
-        top: { style: 'thin', color: { argb: colorBorder } },
-        left: { style: 'thin', color: { argb: colorBorder } },
-        bottom: { style: 'thin', color: { argb: colorBorder } },
-        right: { style: 'thin', color: { argb: colorBorder } },
+        top: { style: 'thin' as const, color: { argb: colorBorder } },
+        left: { style: 'thin' as const, color: { argb: colorBorder } },
+        bottom: { style: 'thin' as const, color: { argb: colorBorder } },
+        right: { style: 'thin' as const, color: { argb: colorBorder } },
       },
-    };
+    } as any;
     // Style cho header bảng
     const tableHeaderStyle = {
       font: { bold: true, size: 12, color: { argb: colorSilver } },
-      alignment: { vertical: 'middle', horizontal: 'center' },
+      alignment: { vertical: 'middle' as const, horizontal: 'center' as const },
       fill: { type: 'pattern', pattern: 'solid', fgColor: { argb: colorHeader } },
       border: {
         top: { style: 'thin', color: { argb: colorBorder } },
@@ -392,7 +408,7 @@ export default function InventoryManagement() {
     // Style cho dòng dữ liệu
     const tableRowStyle = {
       font: { size: 11, color: { argb: colorText } },
-      alignment: { vertical: 'middle', horizontal: 'center' },
+      alignment: { vertical: 'middle' as const, horizontal: 'center' as const },
       border: {
         top: { style: 'thin', color: { argb: colorBorder } },
         left: { style: 'thin', color: { argb: colorBorder } },
@@ -403,7 +419,7 @@ export default function InventoryManagement() {
     // Style cho tên sản phẩm (căn trái, padding)
     const nameCellStyle = {
       font: { size: 11, color: { argb: colorText } },
-      alignment: { vertical: 'middle', horizontal: 'left', indent: 1 },
+      alignment: { vertical: 'middle' as const, horizontal: 'left' as const, indent: 1 },
       border: tableRowStyle.border,
     };
 
@@ -425,7 +441,7 @@ export default function InventoryManagement() {
     const headerRow = worksheet.addRow(tableHeader);
     headerRow.height = 24;
     headerRow.eachCell(cell => {
-      cell.style = tableHeaderStyle;
+      cell.style = tableHeaderStyle as any;
     });
 
     // Dữ liệu chi tiết
@@ -457,9 +473,9 @@ export default function InventoryManagement() {
         status
       ]);
       row.height = 20;
-      row.getCell(1).style = nameCellStyle;
+      row.getCell(1).style = nameCellStyle as any;
       for (let i = 2; i <= 5; i++) {
-        row.getCell(i).style = tableRowStyle;
+        row.getCell(i).style = tableRowStyle as any;
       }
       // Tô màu trạng thái thanh lịch
       if (status === "Hết hàng") row.getCell(5).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: colorOutOfStock } };
@@ -658,7 +674,7 @@ export default function InventoryManagement() {
     
     // Nếu không có tab, thử dùng multiple spaces
     if (!firstLine.includes('\t')) {
-      separator = /\s{2,}/;
+      separator = '  '; // Use double space as separator
     }
 
     const headers = firstLine.split(separator).map(h => h.trim().toLowerCase());
@@ -907,7 +923,7 @@ export default function InventoryManagement() {
     
     // Nếu không có tab, thử dùng multiple spaces
     if (!firstLine.includes('\t')) {
-      separator = /\s{2,}/;
+      separator = '  '; // Use double space as separator
     }
 
     const headers = firstLine.split(separator).map(h => h.trim().toLowerCase());

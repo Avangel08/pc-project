@@ -13,6 +13,8 @@ import path from 'path';
 import { exec } from 'child_process';
 import { Review } from './src/models/Review.js';
 import { PaymentMethods } from './src/models/PaymentMethods.js';
+import { v2 as cloudinary } from 'cloudinary';
+import multer from 'multer';
 
 // Banner Schema
 const bannerImageSchema = new mongoose.Schema({
@@ -72,9 +74,33 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/pc-shop')
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+// Cloudinary Configuration
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Multer configuration for file uploads
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Chỉ chấp nhận file ảnh!'), false);
+    }
+  }
+});
+
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // API Routes
 app.get('/api/products', async (_req, res) => {
@@ -1545,7 +1571,92 @@ app.get('/api/dashboard/summary', async (req, res) => {
 
 // ========== BANNER MANAGEMENT API ENDPOINTS ==========
 
+// ========== CLOUDINARY IMAGE UPLOAD API ==========
+
+// Upload single image to Cloudinary
+app.post('/api/upload/image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'Không có file ảnh được upload' });
+    }
+
+    // Convert buffer to base64
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+
+    // Upload to Cloudinary
+    const result = await cloudinary.uploader.upload(base64Image, {
+      folder: 'pc-project/products',
+      resource_type: 'image',
+      transformation: [
+        { width: 1200, height: 1200, crop: 'limit', quality: 'auto' },
+        { fetch_format: 'auto' }
+      ]
+    });
+
+    res.json({
+      success: true,
+      url: result.secure_url,
+      public_id: result.public_id
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Lỗi khi upload ảnh: ' + error.message });
+  }
+});
+
+// Upload multiple images to Cloudinary
+app.post('/api/upload/images', upload.array('images', 8), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'Không có file ảnh được upload' });
+    }
+
+    const uploadPromises = req.files.map(file => {
+      const base64Image = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
+      return cloudinary.uploader.upload(base64Image, {
+        folder: 'pc-project/products',
+        resource_type: 'image',
+        transformation: [
+          { width: 1200, height: 1200, crop: 'limit', quality: 'auto' },
+          { fetch_format: 'auto' }
+        ]
+      });
+    });
+
+    const results = await Promise.all(uploadPromises);
+
+    res.json({
+      success: true,
+      urls: results.map(result => result.secure_url),
+      public_ids: results.map(result => result.public_id)
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'Lỗi khi upload ảnh: ' + error.message });
+  }
+});
+
+// Delete image from Cloudinary
+app.delete('/api/upload/image/:publicId', async (req, res) => {
+  try {
+    const publicId = req.params.publicId;
+    const result = await cloudinary.uploader.destroy(publicId);
+    
+    if (result.result === 'ok') {
+      res.json({ success: true, message: 'Xóa ảnh thành công' });
+    } else {
+      res.status(404).json({ error: 'Không tìm thấy ảnh để xóa' });
+    }
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.status(500).json({ error: 'Lỗi khi xóa ảnh: ' + error.message });
+  }
+});
+
 // Start server
 app.listen(port, () => {
   console.log(`API server running on port ${port}`);
+  console.log('Cloudinary configured:', {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'Not configured'
+  });
 }); 

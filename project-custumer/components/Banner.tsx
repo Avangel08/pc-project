@@ -214,6 +214,7 @@ export default function Banner({ position, className = '' }: BannerProps) {
     currentBanner = banners[currentBannerIndex];
   }
   if (position === 'promotion' && currentBanner && currentBanner.images) {
+    const bannerId = currentBanner._id;
     return (
       <section className={`py-16 container mx-auto px-4 ${className}`}>
         <div className="relative h-64 md:h-80 rounded-lg overflow-hidden">
@@ -224,7 +225,7 @@ export default function Banner({ position, className = '' }: BannerProps) {
                 alt={currentBanner.images[0]?.alt ? currentBanner.images[0].alt : currentBanner.title}
                 fill
                 className="object-cover cursor-pointer"
-                onLoad={() => handleBannerView(currentBanner._id)}
+                onLoad={() => handleBannerView(bannerId)}
               />
             </Link>
           ) : (
@@ -233,7 +234,7 @@ export default function Banner({ position, className = '' }: BannerProps) {
               alt={currentBanner.images[0]?.alt ? currentBanner.images[0].alt : currentBanner.title}
               fill
               className="object-cover"
-              onLoad={() => handleBannerView(currentBanner._id)}
+              onLoad={() => handleBannerView(bannerId)}
             />
           )}
         </div>

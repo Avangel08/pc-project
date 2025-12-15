@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { AdminLayout } from '@/components/AdminLayout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,8 @@ import {
   Shield,
   Database,
   Download,
-  Upload
+  Upload,
+  X
 } from 'lucide-react';
 import {
   Tabs,
@@ -25,6 +26,7 @@ import {
   Switch
 } from "@/components/ui/switch";
 import { toast } from '@/hooks/use-toast';
+import { uploadImage } from '@/lib/api';
 
 export const SystemSettings = () => {
   const [storeName, setStoreName] = useState('Gaming Store VN');
@@ -39,6 +41,8 @@ export const SystemSettings = () => {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle'|'success'|'error'>('idle');
   const [bankQrUrl, setBankQrUrl] = useState('');
+  const [uploadingQR, setUploadingQR] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Lấy trạng thái payment methods khi vào trang
   useEffect(() => {
@@ -60,6 +64,52 @@ export const SystemSettings = () => {
     fetchPaymentMethods();
   }, []);
 
+  // Hàm upload QR code
+  const handleUploadQR = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Kiểm tra file có phải ảnh không
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Lỗi',
+        description: 'Chỉ cho phép upload file ảnh!',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setUploadingQR(true);
+    try {
+      const url = await uploadImage(file);
+      setBankQrUrl(url);
+      toast({
+        title: 'Thành công',
+        description: 'Đã upload ảnh QR code thành công!',
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Lỗi',
+        description: error.message || 'Không thể upload ảnh',
+        variant: 'destructive',
+      });
+    } finally {
+      setUploadingQR(false);
+      // Reset input để có thể chọn lại file cùng tên
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  // Hàm xóa QR code
+  const handleRemoveQR = () => {
+    setBankQrUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   // Hàm lưu trạng thái payment methods
   const handleSavePaymentMethods = async () => {
     setSaveStatus('idle');
@@ -72,18 +122,32 @@ export const SystemSettings = () => {
       });
       if (res.ok) {
         setSaveStatus('success');
+        toast({
+          title: 'Thành công',
+          description: 'Đã lưu cài đặt thanh toán!',
+        });
       } else {
         setSaveStatus('error');
+        toast({
+          title: 'Lỗi',
+          description: 'Không thể lưu cài đặt',
+          variant: 'destructive',
+        });
       }
     } catch (err) {
       setSaveStatus('error');
+      toast({
+        title: 'Lỗi',
+        description: 'Không thể lưu cài đặt',
+        variant: 'destructive',
+      });
     } finally {
       setLoadingPayment(false);
       setTimeout(() => setSaveStatus('idle'), 2000);
     }
   };
 
-  const [backupList, setBackupList] = useState([]);
+  const [backupList, setBackupList] = useState<any[]>([]);
   const [loadingBackup, setLoadingBackup] = useState(false);
   const [restoring, setRestoring] = useState('');
 
@@ -187,21 +251,57 @@ export const SystemSettings = () => {
                   </div>
                   <Switch checked={bank} onCheckedChange={setBank} disabled={loadingPayment} />
                 </div>
-                {/* Thêm input nhập URL QR code chuyển khoản */}
-                <div className="flex items-center gap-4 mt-2">
-                  <Label htmlFor="bankQrUrl" className="text-gray-300 min-w-[120px]">URL mã QR chuyển khoản</Label>
-                  <Input
-                    id="bankQrUrl"
-                    value={bankQrUrl}
-                    onChange={e => setBankQrUrl(e.target.value)}
-                    placeholder="https://..."
-                    className="bg-gaming-darker border-gaming-cyan/30 text-white"
-                    disabled={loadingPayment}
-                  />
-                  {bankQrUrl && (
-                    <img src={bankQrUrl} alt="QR chuyển khoản" className="w-16 h-16 object-contain border border-gaming-cyan rounded ml-2" />
-                  )}
-                </div>
+                {/* Upload ảnh QR code chuyển khoản */}
+                {bank && (
+                  <div className="space-y-3 mt-4 pt-4 border-t border-gaming-cyan/20">
+                    <Label className="text-gray-300 text-sm font-medium">Mã QR chuyển khoản</Label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUploadQR}
+                        className="hidden"
+                        id="qr-upload"
+                        disabled={uploadingQR || loadingPayment}
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={uploadingQR || loadingPayment}
+                        className="bg-gaming-cyan text-black hover:bg-gaming-cyan/80"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        {uploadingQR ? 'Đang upload...' : bankQrUrl ? 'Thay đổi ảnh QR' : 'Upload ảnh QR'}
+                      </Button>
+                      {bankQrUrl && (
+                        <div className="flex items-center gap-3">
+                          <div className="relative">
+                            <img 
+                              src={bankQrUrl} 
+                              alt="QR chuyển khoản" 
+                              className="w-24 h-24 object-contain border border-gaming-cyan/50 rounded-lg bg-gaming-darker p-2" 
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleRemoveQR}
+                              disabled={loadingPayment}
+                              className="absolute -top-2 -right-2 w-6 h-6 p-0 rounded-full bg-red-500 hover:bg-red-600 text-white"
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                          <span className="text-gray-400 text-sm">Đã có ảnh QR</span>
+                        </div>
+                      )}
+                    </div>
+                    {!bankQrUrl && (
+                      <p className="text-gray-500 text-xs">Vui lòng upload ảnh QR code để khách hàng có thể quét thanh toán</p>
+                    )}
+                  </div>
+                )}
                 <div className="flex justify-end pt-2">
                   <Button onClick={handleSavePaymentMethods} disabled={loadingPayment} className="bg-gaming-cyan text-black hover:bg-gaming-cyan/80">
                     {loadingPayment ? 'Đang lưu...' : 'Lưu thay đổi'}

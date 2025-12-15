@@ -83,7 +83,7 @@ const ProductStats = ({ products }: ProductStatsProps) => {
   const activeProducts = filteredProducts.filter(p => p.stock > 0).length;
   const totalInventoryValue = filteredProducts.reduce((sum, p) => sum + (p.price * p.stock), 0);
   const lowStock = filteredProducts.filter(p => p.stock > 0 && p.stock < 10);
-  const lowRated = filteredProducts.filter(p => (p.rating || 0) < 4);
+  const lowRated: Product[] = []; // Rating not available in Product type
 
   const categoryStats = filteredProducts.reduce((acc, p) => {
     acc[p.category] = (acc[p.category] || 0) + 1;
@@ -254,11 +254,30 @@ export const ProductManagement = () => {
       // Refresh danh sách sản phẩm thay vì chỉ thêm vào state
       const updatedProducts = await fetchProducts();
       setProducts(updatedProducts);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating product:', error);
+      console.error('Error response data:', error.response?.data);
+      console.error('Error details:', error.response?.data?.details);
+      
+      let errorMessage = 'Không thể tạo sản phẩm. Vui lòng thử lại.';
+      
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        if (errorData.details && Array.isArray(errorData.details) && errorData.details.length > 0) {
+          errorMessage = errorData.details.join(', ');
+        } else if (errorData.error) {
+          errorMessage = errorData.error;
+          if (errorData.details && Array.isArray(errorData.details) && errorData.details.length > 0) {
+            errorMessage += ': ' + errorData.details.join(', ');
+          }
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
-        title: "Lỗi",
-        description: "Không thể tạo sản phẩm. Vui lòng thử lại.",
+        title: "Lỗi tạo sản phẩm",
+        description: errorMessage,
         variant: "destructive",
       });
     }
@@ -337,7 +356,7 @@ export const ProductManagement = () => {
     // Exporter name row (row 2)
     worksheet.mergeCells('A2:I2');
     const nameCell = worksheet.getCell('A2');
-    nameCell.value = 'Người xuất: ' + (window?.userName || 'Admin');
+    nameCell.value = 'Người xuất: Admin';
     nameCell.font = { size: 12, italic: true, color: { argb: 'FF888888' } };
     nameCell.alignment = { vertical: 'middle', horizontal: 'left' };
     worksheet.getRow(2).height = 20;
@@ -389,8 +408,8 @@ export const ProductManagement = () => {
         price: product.price,
         stock: product.stock,
         status: product.stock > 0 ? 'Còn hàng' : 'Hết hàng',
-        rating: product.rating,
-        reviews: product.reviews,
+        // rating: product.rating, // Not in Product type
+        // reviews: product.reviews, // Not in Product type
         description: product.description
       });
       // Style for product row
@@ -444,8 +463,8 @@ export const ProductManagement = () => {
         product.price.toLocaleString('vi-VN'),
         product.stock,
         product.stock > 0 ? 'Còn hàng' : 'Hết hàng',
-        product.rating,
-        product.reviews
+        // product.rating, // Not in Product type
+        // product.reviews // Not in Product type
       ]),
       styles: {
         fontSize: 10,

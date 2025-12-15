@@ -27,9 +27,16 @@ const productSchema = new mongoose.Schema({
   },
   description: { 
     type: String, 
-    required: [true, 'Mô tả sản phẩm là bắt buộc'],
+    required: false, // Không bắt buộc, sẽ có default
     trim: true,
-    minlength: [10, 'Mô tả sản phẩm phải có ít nhất 10 ký tự']
+    default: 'Chưa có mô tả',
+    validate: {
+      validator: function(v: string) {
+        // Nếu có description thì phải >= 10 ký tự, nếu không có thì dùng default
+        return !v || v.trim().length === 0 || v.trim().length >= 10;
+      },
+      message: 'Mô tả sản phẩm phải có ít nhất 10 ký tự hoặc để trống'
+    }
   },
   price: { 
     type: Number, 
@@ -56,7 +63,9 @@ const productSchema = new mongoose.Schema({
     type: String,
     validate: {
       validator: function(v: string) {
-        return v && v.trim().length > 0;
+        // Cho phép array rỗng, nhưng nếu có phần tử thì phải không rỗng
+        if (v === undefined || v === null) return false;
+        return v.trim().length > 0;
       },
       message: 'URL hình ảnh không được để trống'
     }

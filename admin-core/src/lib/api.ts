@@ -29,6 +29,10 @@ api.interceptors.response.use(
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
+    // Log error details for debugging
+    if (error.response?.data) {
+      console.error('API Error Response:', error.response.data);
+    }
     return Promise.reject(error);
   }
 );
@@ -170,4 +174,43 @@ export const createOrderHistory = async (historyData: any) => {
   });
   if (!response.ok) throw new Error('Failed to create order history');
   return response.json();
+};
+
+// Image Upload APIs
+export const uploadImage = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append('image', file);
+  
+  const response = await fetch(`${API_BASE_URL}/upload/image`, {
+    method: 'POST',
+    body: formData,
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to upload image');
+  }
+  
+  const data = await response.json();
+  return data.url;
+};
+
+export const uploadImages = async (files: File[]): Promise<string[]> => {
+  const formData = new FormData();
+  files.forEach(file => {
+    formData.append('images', file);
+  });
+  
+  const response = await fetch(`${API_BASE_URL}/upload/images`, {
+    method: 'POST',
+    body: formData,
+  });
+  
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to upload images');
+  }
+  
+  const data = await response.json();
+  return data.urls;
 }; 

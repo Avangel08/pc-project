@@ -20,7 +20,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from '@/hooks/use-toast';
 import { Product } from '@/types/product';
-import { X, Plus, Image as ImageIcon } from 'lucide-react';
+import { X, Plus, Image as ImageIcon, Upload, Loader2 } from 'lucide-react';
+import { uploadImage, uploadImages } from '@/lib/api';
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -66,11 +67,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     updatedAt: '',
   });
 
-  const [newImageUrl, setNewImageUrl] = useState('');
   const [newColor, setNewColor] = useState('');
   const [newTag, setNewTag] = useState('');
   const [newSpecName, setNewSpecName] = useState('');
   const [newSpecValue, setNewSpecValue] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   // Bảng màu cho gaming gear
   const colorPalette = [
@@ -127,7 +128,6 @@ export const ProductModal: React.FC<ProductModalProps> = ({
         updatedAt: '',
       });
     }
-    setNewImageUrl('');
     setNewColor('');
     setNewTag('');
     setNewSpecName('');
@@ -251,13 +251,82 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     onClose();
   };
 
-  const addImage = () => {
-    if (newImageUrl.trim()) {
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    const maxFiles = 8 - (formData.images?.length || 0);
+    if (files.length > maxFiles) {
+      toast({
+        title: 'Lỗi',
+        description: `Chỉ có thể upload tối đa ${maxFiles} ảnh nữa`,
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileArray = Array.from(files);
+      const urls = await uploadImages(fileArray);
+      
       setFormData({
         ...formData,
-        images: [...(formData.images || []), newImageUrl.trim()]
+        images: [...(formData.images || []), ...urls]
       });
-      setNewImageUrl('');
+      
+      toast({
+        title: 'Thành công',
+        description: `Đã upload ${urls.length} ảnh thành công`
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Lỗi upload',
+        description: error.message || 'Không thể upload ảnh',
+        variant: 'destructive'
+      });
+    } finally {
+      setUploading(false);
+      // Reset input
+      event.target.value = '';
+    }
+  };
+
+  const handleSingleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if ((formData.images?.length || 0) >= 8) {
+      toast({
+        title: 'Lỗi',
+        description: 'Đã đạt giới hạn 8 ảnh',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const url = await uploadImage(file);
+      setFormData({
+        ...formData,
+        images: [...(formData.images || []), url]
+      });
+      
+      toast({
+        title: 'Thành công',
+        description: 'Đã upload ảnh thành công'
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Lỗi upload',
+        description: error.message || 'Không thể upload ảnh',
+        variant: 'destructive'
+      });
+    } finally {
+      setUploading(false);
+      event.target.value = '';
     }
   };
 
@@ -686,22 +755,51 @@ export const ProductModal: React.FC<ProductModalProps> = ({
               </div>
             </div>
             
-            <div className="flex gap-2">
-              <Input
-                placeholder="Nhập URL hình ảnh"
-                value={newImageUrl}
-                onChange={(e) => setNewImageUrl(e.target.value)}
-                className="bg-gaming-darker border-gaming-cyan/30 text-white flex-1"
-                disabled={isReadOnly || (formData.images?.length || 0) >= 8}
-              />
-              <Button
-                type="button"
-                onClick={addImage}
-                disabled={isReadOnly || !newImageUrl.trim() || (formData.images?.length || 0) >= 8}
-                className="bg-gaming-cyan text-black hover:bg-gaming-cyan/80"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+            <div className="space-y-3">
+              {/* Upload File Section */}
+              <div className="flex gap-2">
+                <label className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileUpload}
+                    disabled={isReadOnly || uploading || (formData.images?.length || 0) >= 8}
+                    className="hidden"
+                    id="image-upload-multiple"
+                  />
+                  <Button
+                    type="button"
+                    onClick={() => document.getElementById('image-upload-multiple')?.click()}
+                    disabled={isReadOnly || uploading || (formData.images?.length || 0) >= 8}
+                    className="w-full bg-gaming-cyan text-black hover:bg-gaming-cyan/80"
+                  >
+                    {uploading ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Đang upload...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Upload ảnh từ máy tính
+                      </>
+                    )}
+                  </Button>
+                </label>
+                {(formData.images?.length || 0) < 8 && (
+                  <Button
+                    type="button"
+                    onClick={() => document.getElementById('image-upload-multiple')?.click()}
+                    disabled={isReadOnly || uploading}
+                    variant="outline"
+                    className="border-gaming-cyan/30 text-gaming-cyan hover:bg-gaming-cyan/20"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Thêm ảnh
+                  </Button>
+                )}
+              </div>
             </div>
 
             {formData.images && formData.images.length > 0 && (

@@ -9399,5 +9399,59 @@
     "status": "pending",
     "date": "00:40:32 15/12/2025",
     "createdAt": "2025-12-15T00:40:32.458Z"
+  },
+  {
+    "id": "DH672010XH1I78",
+    "userId": 1765759062875,
+    "isGuest": false,
+    "items": [
+      {
+        "product": {
+          "id": "PROD_1765762456011_svpst64hx",
+          "productCode": "JAB98w",
+          "name": "Tai nghe Moondrop Rays",
+          "description": "fvrfvdfvvfvr rtvrfvf t trg",
+          "price": 22,
+          "oldPrice": 22,
+          "discount": 0,
+          "category": "Chuột",
+          "images": [
+            "https://res.cloudinary.com/dt6qjhboo/image/upload/v1765762412/pc-project/products/lrftbpjneht5wfn3ar5n.jpg"
+          ],
+          "status": "con_hang",
+          "quantity": 10,
+          "colors": [],
+          "tags": [
+            "Mới về"
+          ],
+          "specs": [],
+          "supplier": "Keychron",
+          "createdAt": "2025-12-15T01:34:16.011Z",
+          "updatedAt": "2025-12-15T01:34:16.011Z",
+          "rating": 0,
+          "reviews": 0,
+          "inStock": true,
+          "isNew": false
+        },
+        "quantity": 3,
+        "selectedColor": ""
+      }
+    ],
+    "subtotal": 66,
+    "shipping": 10,
+    "total": 76,
+    "payment": "bank",
+    "customer": {
+      "name": "nguyen thanh",
+      "phone": "0833782395",
+      "email": "admin@furniro.com",
+      "province": "Tỉnh Bắc Giang",
+      "district": "Thành phố Bắc Giang",
+      "address": "thanhnd@gmail.com",
+      "note": ""
+    },
+    "status": "pending",
+    "date": "18:17:52 15/12/2025",
+    "createdAt": "2025-12-15T18:17:52.016Z"
   }
 ]

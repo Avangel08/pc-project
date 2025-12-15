@@ -119,6 +119,9 @@ export const OrderManagement = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [orderHistories, setOrderHistories] = useState<OrderHistory[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [showStatusConfirmModal, setShowStatusConfirmModal] = useState(false);
+  const [statusChangeTarget, setStatusChangeTarget] = useState<{ key: OrderStatus; label: string } | null>(null);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   // Thay thế mảng trạng thái bằng đúng enum
   const ORDER_STATUS_OPTIONS = [
@@ -127,9 +130,39 @@ export const OrderManagement = () => {
     { key: 'processing', label: 'Đang xử lý' },
     { key: 'shipping', label: 'Đang giao' },
     { key: 'completed', label: 'Hoàn thành' },
-    { key: 'cancelled', label: 'Hủy' },
+    { key: 'cancelled', label: 'Đã hủy' },
     { key: 'returned', label: 'Trả hàng' },
   ];
+
+  // Luồng trạng thái chính của đơn hàng
+  const ORDER_FLOW = ['pending', 'confirmed', 'processing', 'shipping', 'completed'] as const;
+  type OrderStatus = typeof ORDER_FLOW[number] | 'cancelled' | 'returned';
+
+  // Kiểm tra xem có được phép chuyển từ trạng thái hiện tại sang trạng thái kế tiếp hay không
+  const canTransitionStatus = (current: OrderStatus, next: OrderStatus): boolean => {
+    if (current === next) return false;
+
+    // Đơn đã hủy hoặc trả hàng thì không đổi trạng thái nữa
+    if (current === 'cancelled' || current === 'returned') return false;
+
+    // Chỉ được hủy từ trạng thái pending
+    if (next === 'cancelled') {
+      return current === 'pending';
+    }
+
+    // Trả hàng chỉ cho phép từ confirmed trở đi (không cho từ pending)
+    if (next === 'returned') {
+      return current !== 'pending';
+    }
+
+    // Các trạng thái trong luồng chính phải đi tịnh tiến: pending -> confirmed -> processing -> shipping -> completed
+    const currentIndex = ORDER_FLOW.indexOf(current as any);
+    const nextIndex = ORDER_FLOW.indexOf(next as any);
+    if (currentIndex === -1 || nextIndex === -1) return false;
+
+    // Chỉ cho phép sang trạng thái kế tiếp
+    return nextIndex === currentIndex + 1;
+  };
 
   // Fetch orders từ API
   useEffect(() => {
@@ -617,6 +650,42 @@ export const OrderManagement = () => {
     }
   };
 
+  const handleConfirmStatusChange = async () => {
+    if (!selectedOrder || !statusChangeTarget) return;
+
+    try {
+      setUpdatingStatus(true);
+      const oldStatus = selectedOrder.status;
+      await updateOrderStatus(
+        selectedOrder.orderId,
+        statusChangeTarget.key,
+        user?.name || user?.email || 'Admin'
+      );
+      setSelectedOrder({ ...selectedOrder, status: statusChangeTarget.key });
+      await addOrderHistory(selectedOrder.orderId, 'status_change', oldStatus, statusChangeTarget.key);
+      const ordersData = await getOrders();
+      setOrders(ordersData);
+      toast({
+        title: 'Thành công',
+        description: 'Đã cập nhật trạng thái đơn hàng!',
+      });
+    } catch (err: any) {
+      const message =
+        err?.response?.data?.error ||
+        err?.response?.data?.details?.join(', ') ||
+        'Không thể cập nhật trạng thái đơn hàng';
+      toast({
+        title: 'Lỗi',
+        description: message,
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingStatus(false);
+      setShowStatusConfirmModal(false);
+      setStatusChangeTarget(null);
+    }
+  };
+
   // Sửa hàm mở modal chi tiết đơn hàng
   const openOrderModal = async (orderId: string) => {
     try {
@@ -1088,31 +1157,30 @@ export const OrderManagement = () => {
                   <div className="flex justify-center gap-3 w-full mt-8 overflow-x-auto pb-2">
                 {permission.canChangeStatus && (
                       <>
-                        {ORDER_STATUS_OPTIONS.map(st => (
-                          <Button
-                            key={st.key}
-                            size="sm"
-                            variant={selectedOrder.status === st.key ? 'default' : 'outline'}
-                            className={selectedOrder.status === st.key ? 'bg-gaming-cyan text-white' : 'border-gaming-cyan/40 text-gaming-cyan'}
-                            onClick={async () => {
-                              try {
-                                const oldStatus = selectedOrder.status;
-                                await updateOrderStatus(selectedOrder.orderId, st.key, user?.name || user?.email || 'Admin');
-                                setSelectedOrder({ ...selectedOrder, status: st.key });
-                                // Thêm lịch sử hành động
-                                await addOrderHistory(selectedOrder.orderId, 'status_change', oldStatus, st.key);
-                                // Reload lại danh sách đơn hàng
-                                const ordersData = await getOrders();
-                                setOrders(ordersData);
-                                toast({ title: 'Thành công', description: 'Đã cập nhật trạng thái đơn hàng!' });
-                              } catch (err) {
-                                toast({ title: 'Lỗi', description: 'Không thể cập nhật trạng thái!', variant: 'destructive' });
-                              }
-                            }}
-                          >
-                            {st.label}
-                      </Button>
-                    ))}
+                        {ORDER_STATUS_OPTIONS.map(st => {
+                          const isCurrent = selectedOrder.status === st.key;
+                          const allowed = canTransitionStatus(
+                            selectedOrder.status as OrderStatus,
+                            st.key as OrderStatus
+                          );
+
+                          return (
+                            <Button
+                              key={st.key}
+                              size="sm"
+                              variant={isCurrent ? 'default' : 'outline'}
+                              className={isCurrent ? 'bg-gaming-cyan text-white' : 'border-gaming-cyan/40 text-gaming-cyan'}
+                              disabled={!isCurrent && !allowed}
+                              onClick={() => {
+                                if (!allowed || isCurrent) return;
+                                setStatusChangeTarget(st as { key: OrderStatus; label: string });
+                                setShowStatusConfirmModal(true);
+                              }}
+                            >
+                              {st.label}
+                            </Button>
+                          );
+                        })}
                       </>
                     )}
                   </div>
@@ -1177,6 +1245,63 @@ export const OrderManagement = () => {
               <div className="flex justify-center mt-8">
                 <Button variant="outline" className="bg-red-500 text-white hover:bg-red-600 w-40" onClick={() => setShowModal(false)}>Đóng</Button>
               </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
+        {/* Modal xác nhận chuyển trạng thái đơn hàng */}
+        {showStatusConfirmModal && selectedOrder && statusChangeTarget && (
+          <Dialog open={showStatusConfirmModal} onOpenChange={setShowStatusConfirmModal}>
+            <DialogContent className="bg-gaming-darker border border-gaming-cyan/30 max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="text-gaming-cyan text-xl">
+                  Xác nhận chuyển trạng thái đơn hàng
+                </DialogTitle>
+                <DialogDescription className="text-gray-300">
+                  <div className="space-y-3 mt-2">
+                    <p>
+                      Bạn đang chuyển đơn hàng{' '}
+                      <span className="font-semibold text-gaming-cyan">#{selectedOrder.orderId}</span>{' '}
+                      từ trạng thái{' '}
+                      <span className="font-semibold">
+                        {getStatusText(selectedOrder.status || 'pending')}
+                      </span>{' '}
+                      sang{' '}
+                      <span className="font-semibold text-gaming-green">
+                        {statusChangeTarget.label}
+                      </span>.
+                    </p>
+                    <div className="rounded-md bg-gaming-dark/80 border border-gaming-cyan/30 p-3 text-sm space-y-1">
+                      <p className="font-semibold text-gaming-cyan">Lưu ý:</p>
+                      <ul className="list-disc list-inside text-gray-300 space-y-1">
+                        <li>Trạng thái chỉ được phép chuyển tịnh tiến: Pending → Confirmed → Processing → Shipping → Completed.</li>
+                        <li>Chỉ có thể <span className="text-gaming-red font-semibold">Huỷ đơn</span> ở trạng thái <span className="font-semibold">Chờ xác nhận (Pending)</span>.</li>
+                        <li>Sau khi đã xác nhận trở đi, không thể huỷ mà chỉ có thể chuyển sang <span className="text-gaming-red font-semibold">Trả hàng (Returned)</span>.</li>
+                        <li>Đơn đã ở trạng thái <span className="font-semibold">Đã huỷ</span> hoặc <span className="font-semibold">Trả hàng</span> sẽ không thể thay đổi thêm.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter className="mt-4">
+                <Button
+                  variant="outline"
+                  className="border-gaming-cyan/40 text-gaming-cyan"
+                  onClick={() => {
+                    setShowStatusConfirmModal(false);
+                    setStatusChangeTarget(null);
+                  }}
+                >
+                  Hủy
+                </Button>
+                <Button
+                  className="bg-gaming-cyan text-black hover:bg-gaming-cyan/80"
+                  onClick={handleConfirmStatusChange}
+                  disabled={updatingStatus}
+                >
+                  {updatingStatus ? 'Đang cập nhật...' : 'Xác nhận'}
+                </Button>
+              </DialogFooter>
             </DialogContent>
           </Dialog>
         )}
