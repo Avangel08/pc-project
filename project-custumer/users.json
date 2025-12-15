@@ -116,5 +116,19 @@
     "avatar": "",
     "isActive": true,
     "isDefaultAddress": true
+  },
+  {
+    "id": 1765759062875,
+    "name": "nguyen thanh",
+    "email": "admin@furniro.com",
+    "password": "$2b$12$WvncsqNv5clV2MZLpgNRb.71Ict8r7okZO1AKwDR8RWSxrcpzdJoW",
+    "role": "customer",
+    "createdAt": "2025-12-15T00:37:42.875Z",
+    "updatedAt": "2025-12-15T00:39:56.719Z",
+    "phone": "0833782395",
+    "address": "thanhnd@gmail.com, sa, Thành phố Bắc Giang, Tỉnh Bắc Giang",
+    "avatar": "",
+    "isActive": true,
+    "isDefaultAddress": true
   }
 ]

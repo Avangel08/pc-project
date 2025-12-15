@@ -1,5 +1,23 @@
 # 🚀 PC Project - website Thương Mại Điện Tử
 
+Cần 3 terminal riêng biệt:
+Terminal 1 - API Server (Backend)
+cd ~/pc-project/admin-core
+node --loader ts-node/esm server.js
+
+Terminal 2 - Admin Panel
+
+cd ~/pc-project/admin-core
+npm run dev
+
+Terminal 3 - Customer Site
+
+cd ~/pc-project/project-custumer
+npm run dev
+
+
+
+
 ## 📋 Mô Tả Dự Án(  phát triển 1/06- 23/7 cần phát triển thêm)  
 
 Đây là một hệ thống thương mại điện tử hoàn chỉnh bao gồm 3 phần chính:

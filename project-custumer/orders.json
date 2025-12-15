@@ -9342,5 +9342,62 @@
     "status": "pending",
     "date": "09:30:40 18/7/2025",
     "createdAt": "2025-07-18T02:30:40.993Z"
+  },
+  {
+    "id": "DH2324275D89N3",
+    "userId": 1765759062875,
+    "isGuest": false,
+    "items": [
+      {
+        "product": {
+          "id": "PROD_1765745592276_ft9b6ptr4",
+          "productCode": "JAB9823548",
+          "name": "Tai nghe Moondrop Rays",
+          "description": "ềcdfvfevrfvf",
+          "price": 2433,
+          "oldPrice": 2433,
+          "discount": 0,
+          "category": "Tai nghe",
+          "images": [
+            "https://tainghe.com.vn/media/product/6714_tai_nghe_moondrop_rays_xuan_vu.webp",
+            "https://tainghe.com.vn/media/product/6714_tai_nghe_moondrop_rays_xuan_vu_2.webp"
+          ],
+          "status": "con_hang",
+          "quantity": 5,
+          "colors": [
+            "#000000"
+          ],
+          "tags": [
+            "Mới về"
+          ],
+          "specs": [],
+          "supplier": "Keychron",
+          "createdAt": "2025-12-14T20:53:12.276Z",
+          "updatedAt": "2025-12-14T20:53:12.276Z",
+          "rating": 0,
+          "reviews": 0,
+          "inStock": true,
+          "isNew": false
+        },
+        "quantity": 1,
+        "selectedColor": "#000000"
+      }
+    ],
+    "subtotal": 2433,
+    "shipping": 0,
+    "total": 2433,
+    "payment": "bank",
+    "customer": {
+      "name": "nguyen thanh",
+      "phone": "0833782395",
+      "email": "admin@furniro.com",
+      "province": "Tỉnh Bắc Giang",
+      "district": "Thành phố Bắc Giang",
+      "address": "thanhnd@gmail.com",
+      "note": ""
+    },
+    "status": "pending",
+    "date": "00:40:32 15/12/2025",
+    "createdAt": "2025-12-15T00:40:32.458Z"
   }
 ]
