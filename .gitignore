@@ -95,8 +95,9 @@ jspm_packages/
 ehthumbs.db
 Thumbs.db
 
-# WSL specific
+# WSL specific / Windows Zone.Identifier files
 *.Zone.Identifier
+*_Zone.Identifier
 
 # Backup files
 backup/

@@ -25,3 +25,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Windows Zone.Identifier files
+*_Zone.Identifier
+*.Zone.Identifier
